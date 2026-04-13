@@ -64,7 +64,7 @@ function CreateCabinForm() {
     onError: (err) => toast.error(err.message),
   });
   function onSubmit(data) {
-    mutate(data);
+    mutate({ ...data, image: data.image[0] });
   }
 
   function onError(errors) {
@@ -76,6 +76,7 @@ function CreateCabinForm() {
         <Input
           type="text"
           id="name"
+          disabled={isCreating}
           {...register("name", {
             required: "this field is required",
           })}
@@ -86,6 +87,7 @@ function CreateCabinForm() {
         <Input
           type="number"
           id="maxCapacity"
+          disabled={isCreating}
           {...register("maxCapacity", {
             required: "this field is required",
             min: {
@@ -100,6 +102,7 @@ function CreateCabinForm() {
         <Input
           type="number"
           id="regularPrice"
+          disabled={isCreating}
           {...register("regularPrice", {
             required: "this field is required",
             min: {
@@ -114,12 +117,22 @@ function CreateCabinForm() {
         <Input
           type="number"
           id="discount"
+          disabled={isCreating}
           defaultValue={0}
           {...register("discount", {
             required: "this field is required",
-            validate: (value) =>
-              value <= getValues().regularPrice ||
-              "discount should be less than regular price",
+            // validate: (value) =>
+            //   (value) <= getValues().regularPrice ||
+            //   "discount should be less than regular price",
+            validate: (value) => {
+              const discount = Number(value);
+              const price = Number(getValues().regularPrice);
+
+              return (
+                discount <= price ||
+                "discount should be less than regular price"
+              );
+            },
           })}
         />
       </FormRow>
@@ -128,6 +141,7 @@ function CreateCabinForm() {
         <Textarea
           type="number"
           id="description"
+          disabled={isCreating}
           defaultValue=""
           {...register("description", {
             required: "this field is required",
@@ -137,7 +151,13 @@ function CreateCabinForm() {
 
       <FormRow>
         <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*" />
+        <FileInput
+          id="image"
+          accept="image/*"
+          {...register("image", {
+            required: "this field is required",
+          })}
+        />
       </FormRow>
 
       <FormRow>
